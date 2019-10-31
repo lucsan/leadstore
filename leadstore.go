@@ -6,12 +6,15 @@ import (
 	"leadstore/sqldb"
 )
 
+/*
+	LeadStore is prototype customer details http api and sqlite database.
+*/
+
 const publicKey = "qwerty"
 
-func AllUsers() {
-
-}
-
+/*
+	Initalise the two main components.
+*/
 func main() {
 	fmt.Println("LeadStore Runing")
 	sqldb.Run(publicKey)

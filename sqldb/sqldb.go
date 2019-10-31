@@ -11,11 +11,16 @@ import (
 const dbname = "./test.db"
 const mltable = "marketingLeads"
 
+/*
+	Authentication values.
+*/
 var publicKey string
 var Token string
 
-var p = fmt.Println
-
+/*
+	Customer record/lead structure
+*/
+// TODO: refactor to leadstore component.
 type Mlead struct {
 	Id          int
 	FirstName   string
@@ -27,10 +32,16 @@ type Mlead struct {
 	DateCreated string
 }
 
+/*
+	Wrapper function for checkAdminCreds.
+*/
 func Login(name, pword string) bool {
 	return checkAdminCreds(name, pword)
 }
 
+/*
+	validate the admin credentials, name and password.
+*/
 func checkAdminCreds(adminName, pword string) bool {
 	database, _ := sql.Open("sqlite3", dbname)
 	rows, _ := database.Query("SELECT id, name, password FROM admin WHERE name = ?", adminName)
@@ -47,7 +58,6 @@ func checkAdminCreds(adminName, pword string) bool {
 	var password string
 	rows.Scan(&id, &name, &password)
 	if password != pword {
-		p("xxxx", password, "www", pword)
 		rows.Close()
 		database.Close()
 		return false
@@ -157,7 +167,6 @@ func insertLeads(mleads []Mlead, database *sql.DB) {
 
 func updateLead(v Mlead, database *sql.DB) {
 	lid := v.Id
-	p("updating ", lid)
 	statement, _ := database.Prepare("UPDATE marketingLeads SET firstname = ?, lastname = ?, email = ?, company = ?, postcode = ?, acceptterms = ?, created = ? WHERE id = ?")
 	statement.Exec(v.FirstName, v.LastName, v.Email, v.Company, v.Postcode, v.AcceptTerms, v.DateCreated, lid)
 	printData(database)
@@ -173,6 +182,9 @@ func checkLeadNotExists(database *sql.DB, first, last, email string) bool {
 	return false
 }
 
+/*
+	Stub customer/lead data to pre-poulate db with for test and dev.
+*/
 func createStubLeads() []Mlead {
 	var tmp []Mlead
 	tmp = stackLeads(tmp, "Baz", "Wong", "baz.wong@email.co", "Wongo Ltd", "pc1", true, "29-10-2019")
@@ -186,6 +198,9 @@ func stackLeads(stack []Mlead, first, last, email, company, postcode string, acc
 	return stack
 }
 
+/*
+	Test/dev output function for visual confirmation of db activity.
+*/
 func printData(database *sql.DB) {
 	mleads := extractLeads(database)
 	for _, v := range mleads {
@@ -193,7 +208,9 @@ func printData(database *sql.DB) {
 	}
 }
 
-// Creates the leads db if it does not exist.
+/*
+	Creates the leads db if it does not exist.
+*/
 func prepDatabase(database *sql.DB) {
 	statement, _ := database.Prepare("CREATE TABLE IF NOT EXISTS marketingLeads (id INTEGER PRIMARY KEY, firstname TEXT, lastname TEXT, email TEXT, company TEXT, postcode TEXT, acceptterms INTEGER, created TEXT)")
 	statement.Exec()
@@ -210,6 +227,10 @@ func prepDatabase(database *sql.DB) {
 	rows.Close()
 }
 
+/*
+	Recieves the public key for use in authentication.
+	insertLeads and printData are test/dev function to be removed prior to production.
+*/
 func Run(pk string) {
 	publicKey = pk
 	database, _ := sql.Open("sqlite3", dbname)
@@ -220,6 +241,9 @@ func Run(pk string) {
 	database.Close()
 }
 
+/*
+	Vestigal function for the component as stand alone app.
+*/
 func main() {
 	Run("")
 }

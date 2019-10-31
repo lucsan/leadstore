@@ -1,5 +1,20 @@
 package apis
 
+/*
+	apis (http API service)
+	This component handles reciving and sending http signals.
+	Data is transmitted in JSON in both directions.
+	The endpoints are restricted, which is to say, only the necessary endpoints are exposed.
+	These are:-
+	common root /api/v1/
+	/login for authentication
+	/leads/add
+	/leads/leadID
+	Updates are handled via the submitted JSON by calling /leads/add with a specified id in the JSON
+	Delete is handled via /leads/leadID endpoint where the http verb is DELETE
+
+*/
+
 import (
 	"encoding/json"
 	"fmt"
@@ -29,20 +44,18 @@ func Routerer() {
 	log.Fatal(http.ListenAndServe(":3000", router))
 }
 
-type Test_struct struct {
-	Name string
-}
-
+/*
+	Requires name and password in JSON call.
+*/
 func login(w http.ResponseWriter, r *http.Request) {
 	body, _ := ioutil.ReadAll(r.Body)
 	var loginData map[string]interface{}
 	json.Unmarshal([]byte(body), &loginData)
-	p("login data ", loginData)
 	name := loginData["name"].(string)
 	pword := loginData["password"].(string)
-
-	p(name, pword)
+	// TODO: Implement X-Public header value.
 	valid := sqldb.Login(name, pword)
+
 	w.Header().Set("Content-Type", "application/json")
 	if valid == false {
 		w.WriteHeader(http.StatusForbidden)
@@ -51,15 +64,15 @@ func login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		json.NewEncoder(w).Encode("{\"status\":\"validated\"}")
 	}
-	p(valid, sqldb.Token)
-
 }
 
+/*
+	Checks http headers for X-Token, resonds with fobidden if not found or incorrect.
+	Token encryption is handled by the sqldb component.
+*/
 func authenticate(w http.ResponseWriter, r *http.Request) bool {
 	// pl := r.Header.Get("X-public")
 	tk := r.Header.Get("X-Token")
-	p("tk", tk, "token", sqldb.Token)
-
 	if tk != sqldb.Token || tk == "" || sqldb.Token == "" {
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode("fobidden")
@@ -68,6 +81,9 @@ func authenticate(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
+/*
+	DELETE handler for incomming delete signal.
+*/
 func deleteLead(w http.ResponseWriter, r *http.Request) {
 	if authenticate(w, r) == false {
 		return
@@ -79,6 +95,9 @@ func deleteLead(w http.ResponseWriter, r *http.Request) {
 	sqldb.DeleteLead(id)
 }
 
+/*
+	POST Handler for add and update signals.
+*/
 func addLead(w http.ResponseWriter, r *http.Request) {
 	if authenticate(w, r) == false {
 		return
@@ -89,6 +108,7 @@ func addLead(w http.ResponseWriter, r *http.Request) {
 
 	json.Unmarshal([]byte(body), &leadData)
 
+	// Detect if an id is specified in the JSON package, if so, assume update.
 	var id int
 	id = -1
 	if leadData["id"] != nil {
@@ -109,21 +129,14 @@ func addLead(w http.ResponseWriter, r *http.Request) {
 	mlead := sqldb.Mlead{id, first, last, email, company, postcode, terms, ""}
 
 	sqldb.AddLead(mlead)
-	json.NewEncoder(w).Encode(fmt.Sprintf("recieved something %v", mlead))
+	// TODO: return confrimation
+	json.NewEncoder(w).Encode(fmt.Sprintf("%v", mlead))
 }
 
-func get(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("Gets Still alive!")
-	json.NewEncoder(w).Encode(r.Method)
-}
-
-func post(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode("Posts Still alive!")
-	json.NewEncoder(w).Encode(r.Method)
-}
-
+/*
+	GET handler for all records or records by specified leadID.
+*/
+// TODO: add more search/response options eg: by first name.
 func leads(w http.ResponseWriter, r *http.Request) {
 	pathParams := mux.Vars(r)
 	if authenticate(w, r) == false {
@@ -141,19 +154,30 @@ func leads(w http.ResponseWriter, r *http.Request) {
 }
 
 func leadById(id int, w http.ResponseWriter) {
-	fmt.Printf("user %d ", id)
 	mleads := sqldb.LeadById(id)
 	responseMaker(mleads, w)
 }
 
 func allLeads(w http.ResponseWriter) {
-
-	//json.NewEncoder(w).Encode("getting all users")
 	mleads := sqldb.AllLeads()
 	responseMaker(mleads, w)
 }
 
+/*
+	Blank endpoints for development testing of server.
+*/
+func get(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode("Gets Still alive!")
+}
+
+func post(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode("Posts Still alive!")
+}
+
 func responseMaker(list []sqldb.Mlead, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
 	var tmp []string
 	for _, v := range list {
 		mlead := sqldb.Mlead{v.Id, v.FirstName, v.LastName, v.Email, v.Company, v.Postcode, v.AcceptTerms, v.DateCreated}
@@ -163,10 +187,9 @@ func responseMaker(list []sqldb.Mlead, w http.ResponseWriter) {
 	json.NewEncoder(w).Encode(tmp)
 }
 
+/*
+	Vestigal function for the component as stand alone app.
+*/
 func main() {
 	Routerer()
-}
-
-func healthCheck(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode("Still alive!")
 }
