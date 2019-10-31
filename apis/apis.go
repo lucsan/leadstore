@@ -35,8 +35,6 @@ type Test_struct struct {
 
 func login(w http.ResponseWriter, r *http.Request) {
 	body, _ := ioutil.ReadAll(r.Body)
-	a := r.Header.Get("X-public")
-	p("p ", a)
 	var loginData map[string]interface{}
 	json.Unmarshal([]byte(body), &loginData)
 	p("login data ", loginData)
@@ -44,12 +42,36 @@ func login(w http.ResponseWriter, r *http.Request) {
 	pword := loginData["password"].(string)
 
 	p(name, pword)
-	sqldb.Login(name, pword)
+	valid := sqldb.Login(name, pword)
+	w.Header().Set("Content-Type", "application/json")
+	if valid == false {
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode("fobidden")
+		return
+	} else {
+		json.NewEncoder(w).Encode("{\"status\":\"validated\"}")
+	}
+	p(valid, sqldb.Token)
 
-	//
+}
+
+func authenticate(w http.ResponseWriter, r *http.Request) bool {
+	// pl := r.Header.Get("X-public")
+	tk := r.Header.Get("X-Token")
+	p("tk", tk, "token", sqldb.Token)
+
+	if tk != sqldb.Token || tk == "" || sqldb.Token == "" {
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode("fobidden")
+		return false
+	}
+	return true
 }
 
 func deleteLead(w http.ResponseWriter, r *http.Request) {
+	if authenticate(w, r) == false {
+		return
+	}
 	pathParams := mux.Vars(r)
 	leadid := pathParams["leadID"]
 	var id int
@@ -58,6 +80,9 @@ func deleteLead(w http.ResponseWriter, r *http.Request) {
 }
 
 func addLead(w http.ResponseWriter, r *http.Request) {
+	if authenticate(w, r) == false {
+		return
+	}
 	body, _ := ioutil.ReadAll(r.Body)
 
 	var leadData map[string]interface{}
@@ -101,9 +126,10 @@ func post(w http.ResponseWriter, r *http.Request) {
 
 func leads(w http.ResponseWriter, r *http.Request) {
 	pathParams := mux.Vars(r)
-	//json.NewEncoder(w).Encode("Posts Still alive!")
-	//json.NewEncoder(w).Encode(r.Method)
-	//json.NewEncoder(w).Encode(pathParams)
+	if authenticate(w, r) == false {
+		return
+	}
+
 	leadid := pathParams["leadID"]
 	if leadid == "all" {
 		allLeads(w)
@@ -121,6 +147,7 @@ func leadById(id int, w http.ResponseWriter) {
 }
 
 func allLeads(w http.ResponseWriter) {
+
 	//json.NewEncoder(w).Encode("getting all users")
 	mleads := sqldb.AllLeads()
 	responseMaker(mleads, w)

@@ -11,6 +11,9 @@ import (
 const dbname = "./test.db"
 const mltable = "marketingLeads"
 
+var publicKey string
+var Token string
+
 var p = fmt.Println
 
 type Mlead struct {
@@ -24,13 +27,18 @@ type Mlead struct {
 	DateCreated string
 }
 
-func CheckAdminCreds(adminName, pword string) bool {
+func Login(name, pword string) bool {
+	return checkAdminCreds(name, pword)
+}
+
+func checkAdminCreds(adminName, pword string) bool {
 	database, _ := sql.Open("sqlite3", dbname)
-	rows, _ := database.Query("SELECT id, name, password FROM admin WHERE pword = ?", pword)
+	rows, _ := database.Query("SELECT id, name, password FROM admin WHERE name = ?", adminName)
 	var nr = rows.Next()
-	rows.Close()
-	database.Close()
+
 	if nr == false {
+		rows.Close()
+		database.Close()
 		return false
 	}
 
@@ -38,14 +46,33 @@ func CheckAdminCreds(adminName, pword string) bool {
 	var name string
 	var password string
 	rows.Scan(&id, &name, &password)
-	if adminName != name {
+	if password != pword {
+		p("xxxx", password, "www", pword)
+		rows.Close()
+		database.Close()
 		return false
 	}
+
+	rows.Close()
+	database.Close()
+	tokenEncryption(pword)
 	return true
 }
 
-func Login(name, pword string) {
+/*
+Placeholder function for authentication.
+Naturally full token encryption would be inserted here.
+*/
+func tokenEncryption(pword string) {
+	// TODO: implement full token encryption.
+	Token = pword + publicKey
+}
 
+func tokenChecker(token string) bool {
+	if Token != token {
+		return false
+	}
+	return true
 }
 
 func AllLeads() []Mlead {
@@ -183,7 +210,8 @@ func prepDatabase(database *sql.DB) {
 	rows.Close()
 }
 
-func Run() {
+func Run(pk string) {
+	publicKey = pk
 	database, _ := sql.Open("sqlite3", dbname)
 	mleads := createStubLeads()
 	prepDatabase(database)
@@ -193,5 +221,5 @@ func Run() {
 }
 
 func main() {
-	Run()
+	Run("")
 }
