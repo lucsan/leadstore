@@ -167,8 +167,8 @@ func insertLeads(mleads []Mlead, database *sql.DB) {
 
 func updateLead(v Mlead, database *sql.DB) {
 	lid := v.Id
-	statement, _ := database.Prepare("UPDATE marketingLeads SET firstname = ?, lastname = ?, email = ?, company = ?, postcode = ?, acceptterms = ?, created = ? WHERE id = ?")
-	statement.Exec(v.FirstName, v.LastName, v.Email, v.Company, v.Postcode, v.AcceptTerms, v.DateCreated, lid)
+	statement, _ := database.Prepare("UPDATE marketingLeads SET firstname = ?, lastname = ?, email = ?, company = ?, postcode = ?, acceptterms = ? WHERE id = ?")
+	statement.Exec(v.FirstName, v.LastName, v.Email, v.Company, v.Postcode, v.AcceptTerms, lid)
 	printData(database)
 }
 
