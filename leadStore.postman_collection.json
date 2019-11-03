@@ -1,0 +1,232 @@
+{
+	"info": {
+		"_postman_id": "edef99ea-e1cd-42f3-8441-8e274750ffc7",
+		"name": "leadStore",
+		"description": "Test endpoints for leadstore.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:3000/api/v1/login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Token",
+						"value": "qwerty",
+						"type": "text"
+					},
+					{
+						"key": "X-Public",
+						"value": "123abc",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"admin\",\"password\":\"passy\"}"
+				},
+				"url": {
+					"raw": "localhost:3000/api/v1/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"login"
+					]
+				},
+				"description": "Admin login"
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/v1/leads/all",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Public",
+						"value": "qwerty",
+						"type": "text"
+					},
+					{
+						"key": "X-Token",
+						"value": "passyqwerty",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/api/v1/leads/all?",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"leads",
+						"all"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Retrieve all leads in the database."
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/v1/leads/3",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Token",
+						"value": "passyqwerty",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/api/v1/leads/3?",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"leads",
+						"3"
+					],
+					"query": [
+						{
+							"key": "X-Token",
+							"value": "passyqwerty",
+							"disabled": true
+						},
+						{
+							"key": "X-Public",
+							"value": "qwerty",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Retrieve a specsific records (in this case id = 3)"
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/v1/leads/add",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-Token",
+						"value": "passyqwerty",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"FirstName\":\"Gazo\", \"LastName\":\"Gumby\", \"Company\":\"Gunbobo\", \"Postcode\":\"GU5\", \"AcceptTerms\":\"true\"}"
+				},
+				"url": {
+					"raw": "localhost:3000/api/v1/leads/add",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"leads",
+						"add"
+					]
+				},
+				"description": "Add a new lead to the leadstore."
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/v1/leads/add",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Token",
+						"value": "passyqwerty",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\": \"4\", \"first\":\"Ming\", \"last\": \"Merciful\", \"email\": \"minga@email.co\", \"company\": \"Mongo Plc\", \"postcode\": \"mi1\", \"terms\": \"false\"}"
+				},
+				"url": {
+					"raw": "localhost:3000/api/v1/leads/add",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"leads",
+						"add"
+					]
+				},
+				"description": "Update an existing lead."
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/v1/leads/4",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "X-Token",
+						"value": "passyqwerty",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/api/v1/leads/4",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"leads",
+						"4"
+					],
+					"query": [
+						{
+							"key": "X-Token",
+							"value": "passyqwerty",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Delete a specific record from the leadstore by id."
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
