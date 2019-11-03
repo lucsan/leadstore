@@ -8,8 +8,15 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const dbname = "./test.db"
 const mltable = "marketingLeads"
+
+var dbname string
+
+func dbase() *sql.DB {
+	database, _ := sql.Open("sqlite3", dbname)
+	return database
+	//
+}
 
 /*
 	Authentication values.
@@ -20,7 +27,6 @@ var Token string
 /*
 	Customer record/lead structure
 */
-// TODO: refactor to leadstore component.
 type Mlead struct {
 	Id          int
 	FirstName   string
@@ -43,7 +49,7 @@ func Login(name, pword string) bool {
 	validate the admin credentials, name and password.
 */
 func checkAdminCreds(adminName, pword string) bool {
-	database, _ := sql.Open("sqlite3", dbname)
+	database := dbase()
 	rows, _ := database.Query("SELECT id, name, password FROM admin WHERE name = ?", adminName)
 	var nr = rows.Next()
 
@@ -86,14 +92,18 @@ func tokenChecker(token string) bool {
 }
 
 func AllLeads() []Mlead {
-	database, _ := sql.Open("sqlite3", dbname)
+	database := dbase()
 	mleads := extractLeads(database)
 	database.Close()
+	fmt.Println(mleads)
 	return mleads
 }
 
+/*
+Retrieves lead by id.
+*/
 func LeadById(id int) []Mlead {
-	database, _ := sql.Open("sqlite3", dbname)
+	database := dbase()
 	var mleads []Mlead
 	var firstname string
 	var lastname string
@@ -113,6 +123,9 @@ func LeadById(id int) []Mlead {
 	return mleads
 }
 
+/*
+Retrieves all leads.
+*/
 func extractLeads(database *sql.DB) []Mlead {
 	var mleads []Mlead
 	var id int
@@ -134,7 +147,7 @@ func extractLeads(database *sql.DB) []Mlead {
 }
 
 func AddLead(newLead Mlead) {
-	database, _ := sql.Open("sqlite3", dbname)
+	database := dbase()
 	if newLead.Id > -1 {
 		updateLead(newLead, database)
 	} else {
@@ -147,7 +160,7 @@ func AddLead(newLead Mlead) {
 }
 
 func DeleteLead(id int) {
-	database, _ := sql.Open("sqlite3", dbname)
+	database := dbase()
 	statement, _ := database.Prepare("DELETE FROM marketingLeads WHERE id = ?")
 	statement.Exec(id)
 	printData(database)
@@ -185,16 +198,16 @@ func checkLeadNotExists(database *sql.DB, first, last, email string) bool {
 /*
 	Stub customer/lead data to pre-poulate db with for test and dev.
 */
-func createStubLeads() []Mlead {
+func CreateStubLeads() []Mlead {
 	var tmp []Mlead
-	tmp = stackLeads(tmp, "Baz", "Wong", "baz.wong@email.co", "Wongo Ltd", "pc1", true, "29-10-2019")
-	tmp = stackLeads(tmp, "Larry", "Kong", "larry.kong@email.co", "Wongo Ltd", "pc1", true, "29-10-2019")
-	tmp = stackLeads(tmp, "Nimrod", "Peabody", "nimibo@email.co", "Qongo Ltd", "pc1", true, "29-10-2019")
+	tmp = stackLeads(tmp, "Baz", "Wong", "baz.wong@email.co", "Wongo Ltd", "PC1", true)
+	tmp = stackLeads(tmp, "Ming", "Merciless", "ming@email.co", "Monogo Plc", "PC2", false)
+	tmp = stackLeads(tmp, "Nimrod", "Peabody", "nimibo@email.co", "Qongo Ltd", "PC3", true)
 	return tmp
 }
 
-func stackLeads(stack []Mlead, first, last, email, company, postcode string, accept bool, date string) []Mlead {
-	stack = append(stack, Mlead{0, first, last, email, company, postcode, accept, date})
+func stackLeads(stack []Mlead, first, last, email, company, postcode string, accept bool) []Mlead {
+	stack = append(stack, Mlead{0, first, last, email, company, postcode, accept, ""})
 	return stack
 }
 
@@ -231,19 +244,17 @@ func prepDatabase(database *sql.DB) {
 	Recieves the public key for use in authentication.
 	insertLeads and printData are test/dev function to be removed prior to production.
 */
-func Run(pk string) {
+func Run(pk, dbn string) {
 	publicKey = pk
-	database, _ := sql.Open("sqlite3", dbname)
-	mleads := createStubLeads()
+	dbname = dbn
+	database := dbase()
+	mleads := CreateStubLeads()
 	prepDatabase(database)
 	insertLeads(mleads, database)
 	printData(database)
 	database.Close()
 }
 
-/*
-	Vestigal function for the component as stand alone app.
-*/
-func main() {
-	Run("")
+func RunTest(dbn string) {
+	dbname = dbn
 }

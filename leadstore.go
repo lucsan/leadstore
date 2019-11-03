@@ -10,6 +10,7 @@ import (
 	LeadStore is prototype customer details http api and sqlite database.
 */
 
+const databaseName = "leadstore.db"
 const publicKey = "qwerty"
 
 /*
@@ -17,7 +18,7 @@ const publicKey = "qwerty"
 */
 func main() {
 	fmt.Println("LeadStore Runing")
-	sqldb.Run(publicKey)
+	sqldb.Run(publicKey, databaseName)
 	apis.Routerer()
 
 }
