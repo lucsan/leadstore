@@ -1,5 +1,7 @@
 ⚙ Leadstore - basic lead/customer api and database.
 
+THe application is run from the leadstore file.
+
 Composed of 3 components: A controler - leadstore.go, A simple CRUD sqlite package (sqldb) and a REST http API server package (apis).
 
 A test suit (golang test) is provided to test database operations.
