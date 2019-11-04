@@ -40,7 +40,6 @@ func Routerer() {
 	api.HandleFunc("/leads/{leadID}", deleteLead).Methods(http.MethodDelete)
 	api.HandleFunc("/login", login).Methods(http.MethodPost)
 
-	// TODO: refactor logging from the console to log files or log service.
 	log.Fatal(http.ListenAndServe(":3000", router))
 	fmt.Println("Running server!")
 }
@@ -127,7 +126,7 @@ func addLead(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal([]byte(body), &leadData)
 
 	// Detect if an id is specified in the JSON package, if so, assume update.
-	// TODO: add error handling to prevent server bawking if it recieves an incorrect singnal (eg: ID instead of id)
+	// TODO: add error handling to prevent server bawking if it recieves an incorrect signal (eg: ID instead of id)
 	var id int
 	id = -1
 	if leadData["id"] != nil {
@@ -148,7 +147,6 @@ func addLead(w http.ResponseWriter, r *http.Request) {
 	mlead := sqldb.Mlead{id, first, last, email, company, postcode, terms, ""}
 
 	sqldb.AddLead(mlead)
-	// TODO: return confirmation
 	specifyHeaders(w)
 	json.NewEncoder(w).Encode(fmt.Sprintf("%v", mlead))
 }
@@ -197,6 +195,9 @@ func post(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Posts Still alive!")
 }
 
+/*
+	options responder for CORS pre-filght check response.
+*/
 func options(w http.ResponseWriter, r *http.Request) {
 	specifyHeaders(w)
 	return
@@ -214,6 +215,9 @@ func responseMaker(list []sqldb.Mlead, w http.ResponseWriter) {
 	json.NewEncoder(w).Encode(tmp)
 }
 
+/*
+	Common headers for CORS and authentication tokens.
+*/
 func specifyHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")

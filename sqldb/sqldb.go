@@ -25,7 +25,7 @@ var publicKey string
 var Token string
 
 /*
-	Customer record/lead structure
+	Customer data model record/lead structure
 */
 type Mlead struct {
 	Id          int
@@ -76,8 +76,8 @@ func checkAdminCreds(adminName, pword string) bool {
 }
 
 /*
-Placeholder function for authentication.
-Naturally full token encryption would be inserted here.
+	Placeholder function for authentication.
+	Naturally full token encryption would be inserted here.
 */
 func tokenEncryption(pword string) {
 	// TODO: implement full token encryption.
@@ -100,7 +100,7 @@ func AllLeads() []Mlead {
 }
 
 /*
-Retrieves lead by id.
+	Retrieves lead by id.
 */
 func LeadById(id int) []Mlead {
 	database := dbase()
@@ -124,7 +124,7 @@ func LeadById(id int) []Mlead {
 }
 
 /*
-Retrieves all leads.
+	Retrieves all leads.
 */
 func extractLeads(database *sql.DB) []Mlead {
 	var mleads []Mlead
@@ -146,6 +146,9 @@ func extractLeads(database *sql.DB) []Mlead {
 	return mleads
 }
 
+/*
+	Inserts leads without id's, updates one's with ids.
+*/
 func AddLead(newLead Mlead) {
 	database := dbase()
 	if newLead.Id > -1 {
