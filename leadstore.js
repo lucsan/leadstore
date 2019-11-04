@@ -36,7 +36,6 @@ const elementsBuilder = () => {
 }
 
 elementsBuilder()
-login()
 
 const controlsBuilder = () => {
   let eList = document.createElement('button')
@@ -106,7 +105,6 @@ const callDelete = (id) => {
       let display = document.getElementById('display')
       display.innerHTML = ''
       callListAll()
-      //listAll(JSON.parse(this.responseText))
     }
   }
   xhr.send()
@@ -114,12 +112,8 @@ const callDelete = (id) => {
 }
 
 const callUpdate = (id) => {
-  //console.log(id)
   let ein = document.getElementById(`input_${id}`)
-  //console.log(ein.value)
   callAddLead(ein.value)
-  
-  
 }
 
 const callListAll = () => {
@@ -156,7 +150,6 @@ console.log(newLead)
 
   let pnl = JSON.parse(newLead)
   let snl = JSON.stringify(pnl)
-  // {"first":"Ming", "last": "Merciless", "email": "minga@email.co", "company": "Mongo Plc", "postcode": "mi1", "terms": "true"}
   let testLead = JSON.stringify({"id":"7", "first":"Gazo", "last":"Gumby", "email":"gumbo@email.co", "company":"Gunbobo", "postcode":"GU5", "terms":"true"}) 
 
   xhr.send(snl)
@@ -171,12 +164,6 @@ function login() {
  
   let xhr = new XMLHttpRequest()
   xhr.open('POST', 'http://localhost:3000/api/v1/login', true)
-
-  // xhr.setRequestHeader("Content-type", "application/json")
-  // xhr.setRequestHeader("Access-Control-Allow-Origin", "*")
-  // xhr.setRequestHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-
-  // xhr.setRequestHeader("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers, X-Token")
 
   xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200 && this.HEADERS_RECEIVED) {
@@ -210,14 +197,3 @@ const headersList = (headers) => {
   })
   return headerMap
 }
-
-
-//login()
-
-// let xhr = new XMLHttpRequest()
-// xhr.open('GET', 'http://localhost:3000/api/v1/leads/all', true)
-// xhr.setRequestHeader("Content-type", "application/json")
-// xhr.setRequestHeader("Access-Control-Allow-Origin", "*")
-// xhr.setRequestHeader("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers")
-// xhr.send()
-
